@@ -53,6 +53,8 @@ The project follows a layered architecture and includes the following components
 - **C#**
 - **ASP.NET Core**
 - **Entity Framework Core**
+- **HTML**
+- **CSS**
 - **MVC**
   
 
