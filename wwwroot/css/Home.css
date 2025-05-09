@@ -74,10 +74,10 @@ h1, .h1, h2, .h2, h3, .h3, h4, .h4 {
 }
 
 .btn {
-    padding-top: 12px;
-    padding-bottom: 12px;
-    padding-left: 30px;
-    padding-right: 30px;
+   /* padding-top: 12px;*/
+    /*padding-bottom: 12px;*/
+    /*padding-left: 30px;*/
+    /*padding-right: 30px;*/
     border-radius: 30px;
     font-size: 14px;
 }

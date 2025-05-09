@@ -13,6 +13,9 @@ namespace MVCBookingFinal_YARAB_.ViewModels
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}", ApplyFormatInEditMode = true)]
         public DateTime ExpiryDate { set; get; }
 
+        [Range(10,40)]
+        public int discount { set; get; }
+
         //[ForeignKey("AddingUser")]
         public string? AddingUserID { get; set; }
         //public AppUser AddingUser { set; get; }

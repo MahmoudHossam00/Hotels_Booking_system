@@ -9,6 +9,23 @@ namespace MVCBookingFinal_YARAB_.Repositories
 {
 	public class ReservationService(ApplicationDbContext context,UserManager<AppUser> usermanager) : IReservationService
 	{
+		/*
+		 * 		public double AfterDiscount => TotalAmount
+			* (100 - (usedfcodes ? UsedPromoCodes.Select(u => u.PromoCode).Where(p => p.IsActive).Sum(p => p.Discount) : 0)) / 100;
+
+		 */
+		public async Task<List<Reservation>> MyReservations(string userid)
+		{
+			var mylist= context.Reservations.Where(r => r.Reserved.Any(res => res.UserId == userid))
+				.Include(r => r.Reserved).ThenInclude(R => R.Room).ThenInclude(R => R.Hotel)
+				.Include(r => r.mealPlan)
+				.Include(r => r.amenity)
+				.Include(r => r.Reserved).ThenInclude(R => R.Room)
+				.Include(r => r.UsedPromoCodes).ThenInclude(U => U.PromoCode)
+				.Include(r => r.Reserved).ThenInclude(r => r.User)
+				.ToList();
+			return mylist;
+		}
 		public async Task savedraft(DraftReservation reservation,string userid, List<Room> rooms)
 		{
 
@@ -110,7 +127,8 @@ namespace MVCBookingFinal_YARAB_.Repositories
 				.Include(r=>r.UsedPromoCodes).ThenInclude(pc=>pc.PromoCode)
 				.Include(r=>r.amenity)
 				.Include(r=>r.mealPlan)
-				.Include(r=>r.Reserved).ThenInclude(r=>r.Room)
+				.Include(r=>r.Reserved).ThenInclude(r=>r.Room).ThenInclude(r=>r.Hotel)
+				.Include(r=>r.Reserved).ThenInclude(r=>r.Room).ThenInclude(r=>r.Images)
 				//.Include(r => r.Reserved).ThenInclude(r => r.Reservation)
 				.FirstOrDefault(r => r.Id == id);
 		}
@@ -128,9 +146,12 @@ namespace MVCBookingFinal_YARAB_.Repositories
 		public void Delete(string userid)
 		{
 			var draft = context.DraftReservations.FirstOrDefault(d => d.UserId == userid);
-			context.DraftReservationRoom.RemoveRange(context.DraftReservationRoom.Where(r => r.DraftReservationId == draft.Id));
-			//if(draft is not null)
-			context.Remove(draft);
+			if (draft is not null)
+			{
+				context.DraftReservationRoom.RemoveRange(context.DraftReservationRoom.Where(r => r.DraftReservationId == draft.Id));
+				//if(draft is not null)
+				context.Remove(draft);
+			}
 			context.SaveChanges();
 		}
 		public DraftReservation getUserReservation(string userid)
@@ -144,6 +165,15 @@ namespace MVCBookingFinal_YARAB_.Repositories
 			return hhh;
 		
 		}
+		public void CancelReservation(int id)
+		{
+			var reservation = getById(id);
+			reservation.reservationStatus = ReservationStatus.Canceled;
+			reservation.CancellationDate = DateTime.Now;
+			context.Update(reservation);
+			context.SaveChanges();
+		}
+
 
 	}
 }

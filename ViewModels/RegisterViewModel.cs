@@ -15,8 +15,7 @@ namespace MVCBookingFinal_YARAB_.ViewModels
 		public DateTime DateOfBirth { set; get; }
 
 		public string Email { set; get; }
-		[Compare("Email")]
-		public string ConfirmEmail { set; get; }
+
 		[Phone]
 		[MaxLength(11)]
 		[MinLength(11)]
@@ -30,6 +29,12 @@ namespace MVCBookingFinal_YARAB_.ViewModels
 		[ImageExtension]
 		[NotMapped]
 		public IFormFile? ProfilePicture { set; get; }
+
+
+
+		public string? Usernameoremail { set; get; }
+		public string? loginPassword { set; get; }
+		public bool? rememberme { set; get; } = false;
 
 	}
 }

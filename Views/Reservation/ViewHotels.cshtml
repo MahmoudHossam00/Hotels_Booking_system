@@ -16,17 +16,26 @@
 
 
 
+
+
+
+<style>
+    .btn {
+         padding-top: 6px; 
+         padding-bottom: 6px; 
+        padding-left: 10px;
+        padding-right: 10px;
+        border-radius: 30px;
+        font-size: 14px;
+    }
+</style>
+
+
 <div class="container px-5">
 
 
     <div class="container row">
 
-
-        <h1>ViewRooms</h1>
-
-        <p>
-            <a asp-action="Create">Create New</a>
-        </p>
 
 
         <div class="col-sm-12 col-md-2 mb-3 mb-lg-0 col-lg-3  ">
@@ -73,7 +82,7 @@
         
         <!-- Submit Button -->
         <div class="d-flex justify-content-center">
-            <button type="submit" class="btn btn-primary">Filter</button>
+            <button type="submit" class="btn btn-primary" style="padding:6px 20px;">Filter</button>
         </div>
     </form>
 </div>
@@ -96,7 +105,7 @@
                             <!-- Image Section -->
                             <div class="col-md-4 p-3">
                                 <a asp-action="GoToHotel" asp-route-id="@item.id">
-                                    <img src="~/ProductsImages/644338.jpg" class="img-fluid w-100 h-100"
+                                    <img src="~/ProductsImages/@item.Images.FirstOrDefault()?.Image" alt="64338.jpg" class="img-fluid w-100 h-100"
                                          style="border-radius:15px; object-fit: cover;" alt="...">
                                 </a>
                                 

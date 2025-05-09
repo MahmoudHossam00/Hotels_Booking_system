@@ -63,7 +63,7 @@ public class HomeController : Controller
 						PriceData = new SessionLineItemPriceDataOptions
 						{
 							Currency = currency,
-							UnitAmount = Convert.ToInt32(amount) * 100,  // Amount in smallest currency unit (e.g., cents)
+							UnitAmount = Convert.ToInt32(Math.Ceiling(decimal.Parse(amount))) * 100,  // Amount in smallest currency unit (e.g., cents)
                             ProductData = new SessionLineItemPriceDataProductDataOptions
 							{
 								Name = "Product Name",

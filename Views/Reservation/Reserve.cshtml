@@ -23,7 +23,9 @@
                            {
                                Value = ((int)a).ToString(),  // Enum integer value
                                Text = a.ToString(),        // Enum string name
-                               Selected = (((AmenityEnum)Model.amenity) == null) ? false : ((AmenityEnum)Model.amenity).HasFlag(a)
+                               // Selected = (((AmenityEnum)Model.amenity) == null) ? false : ((AmenityEnum)Model.amenity).HasFlag(a)
+                               Selected = (Model.amenity != null && ((AmenityEnum)Model.amenity).HasFlag(a))  // Ensure Model.amenity is not null before checking HasFlag
+
                            })
                    .ToList();
     int x = 5;

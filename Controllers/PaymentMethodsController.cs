@@ -18,7 +18,7 @@ namespace MVCBookingFinal_YARAB_.Controllers
         {
             ViewBag.PaymentTypes = new List<SelectListItem>
         {
-            new SelectListItem { Value = "", Text = "Select Payment Type" },
+            //new SelectListItem { Value = "", Text = "Select Payment Type" },
             new SelectListItem { Value = "Card", Text = "Card" },
             new SelectListItem { Value = "Stripe", Text = "Stripe" }
         };

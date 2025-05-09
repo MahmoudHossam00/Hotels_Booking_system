@@ -18,9 +18,9 @@ namespace MVCBookingFinal_YARAB_.Controllers
 
 		// GET: Favorites
 		[Authorize]
-		public IActionResult Index()
+		public IActionResult Index(bool foruser=false)
             {
-            if (User.IsInRole("ADMIN".ToUpper()))
+            if (User.IsInRole("ADMIN".ToUpper())&&!foruser)
             {
             
                 var allFavorites = _favoritesService.GetAllFavorites();

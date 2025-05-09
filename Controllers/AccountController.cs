@@ -22,13 +22,15 @@ namespace MVCBookingFinal_YARAB_.Controllers
 		[AllowAnonymous]
 		public ActionResult Register()
 		{
-            //userManager.GetUserId();
+			//userManager.GetUserId();
+			ViewBag.operation = "Register";
 			return View();
 		}
 		[HttpPost]
 		[AllowAnonymous]
 		public async Task<ActionResult> Register(RegisterViewModel vm)
 		{
+			ViewBag.operation = "Register";
 			try
 			{
 				if (ModelState.IsValid)
@@ -162,45 +164,51 @@ namespace MVCBookingFinal_YARAB_.Controllers
 		[AllowAnonymous]
 		public ActionResult Login()
         {
-            return View();
+			ViewBag.operation = "Login";
+            return View(nameof(Register));
         }
 
 		// POST: AccounttController/Create
 		[HttpPost]
 		[AllowAnonymous]
-		public async Task<ActionResult> Login(LoginViewModel vm)
+		public async Task<ActionResult> Login(RegisterViewModel vm)
 		{
 			try
 			{
-				if (ModelState.IsValid)
-				{
-					var user = (await userManager.FindByEmailAsync(vm.UsernameOrEmail)) ?? await userManager.FindByNameAsync(vm.UsernameOrEmail);
+				
+					var user = (await userManager.FindByEmailAsync(vm.Usernameoremail)) ?? await userManager.FindByNameAsync(vm.Usernameoremail);
 
 					if (user is not null)
 					{
 						if (!await userManager.IsEmailConfirmedAsync(user))
 						{
-							ModelState.AddModelError("", "You must confirm your email before logging in.");
-							return View(vm);
+						ModelState.Clear();
+
+						ViewBag.confirmemail = true;
+						ViewBag.invalidecomb = false;
+						ModelState.AddModelError("", "You must confirm your email before logging in.");
+							return View("register");
 						}
 
-						if (await userManager.CheckPasswordAsync(user, vm.Password))
+						if (await userManager.CheckPasswordAsync(user, vm.loginPassword))
 						{
 							await _userService.AddRole(user, BookingRole.user);
-							await signInManager.SignInAsync(user, vm.RememberMe);
+							await signInManager.SignInAsync(user, vm.rememberme??false);
 							return RedirectToAction("Index", "Home");
 						}
 
 					}
+				ViewBag.confirmemail = false;
+				ViewBag.invalidecomb = true;
+				ModelState.Clear();
+				ModelState.AddModelError(" ", "incorrect username/password combination");
 
-					ModelState.AddModelError(" ", "incorrect username/password combination");
 
-				}
-				return View(vm);
+				return View("Register", vm);
 			}
 			catch
 			{
-				return View(vm);
+				return View("Register", vm);
 			}
 		}
 		[HttpGet]
@@ -274,7 +282,7 @@ namespace MVCBookingFinal_YARAB_.Controllers
             RegisterViewModel vm = new()
             {
                 Email = user.Email,
-                ConfirmEmail = user.Email,
+                //ConfirmEmail = user.Email,
                 DateOfBirth = user.DateOfBirth,
                 FirstName = user.FirstName,
                 LastName = user.LastName,

@@ -76,6 +76,7 @@ namespace MVCBookingFinal_YARAB_.Controllers
             pc.ExpiryDate = promocode.ExpiryDate;
             pc.Code = promocode.Code;
             pc.AddingUserID = promocode.AddingUserID;
+            pc.discount = (int)(promocode.Discount);
             return View(pc);
         }
 

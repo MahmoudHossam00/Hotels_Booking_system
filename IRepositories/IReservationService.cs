@@ -9,7 +9,8 @@
 		public string GETCODEText(int id);
 		public Reservation SaveReservation(ReservationViewModel vm, IEnumerable<Room> rooms, string userid);
 		public Reservation getById(int id);
-
+		public  Task<List<Reservation>> MyReservations(string userid);
+		public void CancelReservation(int id);
 
 	}
 }

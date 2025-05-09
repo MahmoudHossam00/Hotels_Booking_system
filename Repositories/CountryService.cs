@@ -12,12 +12,12 @@ namespace MVCBookingFinal_YARAB_.Repositories
 
 		public List<Country> GetAll()
 		{
-			return context.Countries.Include(c=>c.Cities).Where(c=> !c.isDeleted ).ToList();
+			return context.Countries.Include(c => c.Cities).ThenInclude(C => C.Hotels).ThenInclude(h => h.Rooms).Where(c=> !c.isDeleted ).ToList();
 		}
 
 		public Country GetById(int id)
 		{
-			return context.Countries.Include(c => c.Cities).SingleOrDefault(c=>c.Id==id);
+			return context.Countries.Include(c => c.Cities).ThenInclude(C => C.Hotels).ThenInclude(h => h.Rooms).SingleOrDefault(c=>c.Id==id);
 		}
 		public void Create(CountryViewModel vm)
 		{

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace MVCBookingFinal_YARAB_.Repositories
 {
@@ -10,16 +11,16 @@ namespace MVCBookingFinal_YARAB_.Repositories
         public List<PromoCode> GetAll()
         {
             
-            return context.PromoCodes.Include(p=>p.AddingUser).ToList();
+            return context.PromoCodes.Include(p=>p.AddingUser).Include(pc => pc.UsedTimes).ToList();
         }
         public List<PromoCode> GetAllAddedBySingleUser(string id)
         {                        
                         
-            return context.PromoCodes.Include(pc=>pc.AddingUser).Where(p => p.AddingUserID == id).ToList();
+            return context.PromoCodes.Include(pc=>pc.AddingUser).Include(pc => pc.UsedTimes).Where(p => p.AddingUserID == id).ToList();
         }
         public PromoCode GetById(int id)
         {
-            return context.PromoCodes.FirstOrDefault(pc=>pc.Id==id);
+            return context.PromoCodes.Include(pc => pc.AddingUser).Include(pc=>pc.UsedTimes).FirstOrDefault(pc=>pc.Id==id);
         }
 
         public void Create(PromoCodeViewModel pc,string userId)
@@ -28,6 +29,7 @@ namespace MVCBookingFinal_YARAB_.Repositories
             code.ExpiryDate = pc.ExpiryDate;
             code.AddingUserID = userId;
             code.Code = pc.Code;
+            code.Discount = (double)pc.discount;
             context.PromoCodes.Add(code);
             context.SaveChanges();
         }
@@ -37,8 +39,10 @@ namespace MVCBookingFinal_YARAB_.Repositories
             selectedpromocode.ExpiryDate = pc.ExpiryDate;
             selectedpromocode.Code = pc.Code;
             selectedpromocode.AddingUserID = pc.AddingUserID;
-
+			selectedpromocode.Discount = (double)pc.discount;
+			selectedpromocode.IsActive=selectedpromocode.ExpiryDate > DateTime.Now ?  true :  false;
 			context.PromoCodes.Update(selectedpromocode);
+            context.SaveChanges();
         }
 
         public void Delete(PromoCode pc)

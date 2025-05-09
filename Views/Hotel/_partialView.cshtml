@@ -90,135 +90,118 @@
 </style> *@
 
 
-<h3>Click on the map to choose a location</h3>
-<input id="searchBox" type="text" placeholder="Search by country or city">
-<div id="map"></div>
-<p>Latitude: <input asp-for="Latitude" id="latitude" value="@Model?.Latitude" readonly></p>
-<p>Longitude: <input asp-for="Longitude" id="longitude" value="@Model?.Longitude" readonly></p>
-@* 
-<h3>Click on the map to choose a location</h3>
-<input id="searchBox" type="text" placeholder="Search by country or city">
-<div id="map"></div>
-<p>Latitude: <input type="text" id="latitude" readonly></p>
-<p>Longitude: <input type="text" id="longitude" readonly></p>
- *@
-
-
 @{
-    string lat = Model?.Latitude ?? "37";
-    string lng = Model?.Longitude ?? "-120";
-    lat = lat == "" ? "37" : lat;
-    lng = lng == "" ? "-120" : lng;
+    string lat = Model?.Latitude ?? "30.0444";  // Default to Cairo coordinates
+    string lng = Model?.Longitude ?? "31.2357";
+    lat = string.IsNullOrEmpty(lat) ? "30.0444" : lat;
+    lng = string.IsNullOrEmpty(lng) ? "31.2357" : lng;
 }
+
+<div class="form-group">
+    <input id="searchBox" type="text" placeholder="Search for a location..." class="form-control" style="margin-bottom: 10px;" />
+    <div id="map" style="height: 400px; width: 100%; border-radius: 8px; margin-bottom: 15px;"></div>
+    <input type="hidden" id="latitude" name="Latitude" value="@lat" />
+    <input type="hidden" id="longitude" name="Longitude" value="@lng" />
+</div>
+
+
+@* <div class="form-group">
+    <label>Location</label>
+    <input id="searchBox" type="text" placeholder="Search for a location..." class="form-control" style="margin-bottom: 10px;" />
+    <div id="map" style="height: 400px; width: 100%; border-radius: 8px; margin-bottom: 15px;"></div>
+    <input type="hidden" asp-for="Latitude" id="latitude" value="@lat" />
+    <input type="hidden" asp-for="Longitude" id="longitude" value="@lng" />
+</div> *@
+
+
 <script>
     let map, marker, searchBox;
 
-        document.addEventListener("DOMContentLoaded", function () {
-
-    window.initMap=function() {
-        // Initial map setup
-       let lat = parseFloat("@lat");
+    function initMap() {
+        let lat = parseFloat("@lat");
         let lng = parseFloat("@lng");
-        map = new google.maps.Map(document.getElementById('map'), {
-            center:{lat:lat,lng:lng},
-            //{ lat:"lat" , lng: "lng" }, // Default location (San Francisco)
-            zoom: 12
-        });
 
-        marker = new google.maps.Marker({
-            map: map,
-            draggable: true,
-            position: map.getCenter()
-        });
+        // Force map reinitialization
+        const mapElement = document.getElementById('map');
+        if (mapElement) {
+            // Clear previous instance if exists
+            mapElement.innerHTML = '';
 
-        // Search Box functionality
-        searchBox = new google.maps.places.SearchBox(document.getElementById('searchBox'));
-        map.controls[google.maps.ControlPosition.TOP_LEFT].push(document.getElementById('searchBox'));
+            map = new google.maps.Map(mapElement, {
+                center: { lat: lat, lng: lng },
+                zoom: 12
+            });
 
-        // Bias the SearchBox results to the map's viewport
-        map.addListener('bounds_changed', function() {
-            searchBox.setBounds(map.getBounds());
-        });
+            // Create marker at the specified position
+            marker = new google.maps.Marker({
+                map: map,
+                draggable: true,
+                position: { lat: lat, lng: lng }
+            });
 
-        // When the user selects a place from the suggestions
-        searchBox.addListener('places_changed', function() {
-            const places = searchBox.getPlaces();
+            // Initialize search box
+            const searchInput = document.getElementById('searchBox');
+            if (searchInput) {
+                searchBox = new google.maps.places.SearchBox(searchInput);
+                map.controls[google.maps.ControlPosition.TOP_LEFT].push(searchInput);
 
-            if (places.length == 0) {
-                return;
+                // Update search box bounds when map bounds change
+                map.addListener('bounds_changed', () => {
+                    searchBox.setBounds(map.getBounds());
+                });
+
+                // Handle place selection
+                searchBox.addListener('places_changed', () => {
+                    const places = searchBox.getPlaces();
+                    if (places.length === 0) return;
+
+                    const place = places[0];
+                    const newLat = place.geometry.location.lat();
+                    const newLng = place.geometry.location.lng();
+
+                    marker.setPosition(place.geometry.location);
+                    map.setCenter(place.geometry.location);
+                    updateCoordinateInputs(newLat, newLng);
+                });
             }
 
-            // Clear previous markers
-            marker.setMap(null);
+            // Map click handler
+            google.maps.event.addListener(map, 'click', (event) => {
+                marker.setPosition(event.latLng);
+                updateCoordinateInputs(event.latLng.lat(), event.latLng.lng());
+            });
 
-            // Get the details of the selected place
-            const place = places[0];
-            const lat = place.geometry.location.lat();
-            const lng = place.geometry.location.lng();
-
-            // Update the marker and the map center
-            marker.setPosition(place.geometry.location);
-            map.setCenter(place.geometry.location);
-
-            // Update the input fields with the new coordinates
-            document.getElementById('latitude').value = lat;
-            document.getElementById('longitude').value = lng;
-        });
-
-        // When the user clicks on the map, update the marker and input fields
-        google.maps.event.addListener(map, 'click', function(event) {
-            const lat = event.latLng.lat();
-            const lng = event.latLng.lng();
-
-            marker.setPosition(event.latLng);
-            document.getElementById('latitude').value = lat;
-            document.getElementById('longitude').value = lng;
-        });
-
-        // When the user drags the marker, update the input fields
-        google.maps.event.addListener(marker, 'dragend', function() {
-            const lat = marker.getPosition().lat();
-            const lng = marker.getPosition().lng();
-            document.getElementById('latitude').value = lat;
-            document.getElementById('longitude').value = lng;
-        });
+            // Marker drag handler
+            google.maps.event.addListener(marker, 'dragend', () => {
+                const position = marker.getPosition();
+                updateCoordinateInputs(position.lat(), position.lng());
+            });
+        }
     }
 
-            });
-  
-    function submitCoordinates() {
-        const lat = document.getElementById('latitude').value;
-        const lng = document.getElementById('longitude').value;
+    function updateCoordinateInputs(lat, lng) {
+        document.getElementById('latitude').value = lat;
+        document.getElementById('longitude').value = lng;
+    }
 
-        if (!lat || !lng) {
-            alert('Please select a location on the map!');
-            return;
+    // Ensure map loads when the page loads and when content changes
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof google !== 'undefined') {
+            initMap();
         }
+    });
 
-        // Send the selected coordinates to your C# backend (AJAX or Fetch)
-        fetch('/api/coordinates/submit', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ latitude: lat, longitude: lng })
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert('Coordinates submitted successfully!');
-        })
-        .catch(error => {
-            console.error('Error submitting coordinates:', error);
-        });
+    // Optional: Add this if you're using any dynamic content loading
+    if (typeof google !== 'undefined') {
+        initMap();
     }
 </script>
 
-         @inject IConfiguration config
+@inject IConfiguration config
 @{
     string first = "https://maps.googleapis.com/maps/api/js?key=";
     string second = config["GoogleMapsApiKey"];
-    string third = "&libraries=places&callback=initMap";
+    string third = "&v=quarterly&libraries=places,geometry,drawing&callback=initMap";
     string src = first + second + third;
-
 }
 <script src="@src" async defer></script>

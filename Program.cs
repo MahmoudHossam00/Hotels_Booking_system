@@ -22,7 +22,8 @@ namespace MVCBookingFinal_YARAB_
 			builder.Services.AddSingleton<IPasswordHasher<AppUser>, PasswordHasher<AppUser>>();
 
 			builder.Services.AddDbContext<ApplicationDbContext>(OP => OP.UseSqlServer(
-				builder.Configuration.GetConnectionString("DefaultConnection")));
+				builder.Configuration.GetConnectionString("DefaultConnection")).EnableSensitiveDataLogging()
+			  .LogTo(Console.WriteLine, LogLevel.Information));
 			builder.Services.AddIdentity<AppUser, IdentityRole>()
 				.AddEntityFrameworkStores<ApplicationDbContext>().AddDefaultTokenProviders();
 
